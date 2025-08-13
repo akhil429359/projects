@@ -1,0 +1,15 @@
+{% extends 'index.html' %}
+{% block content %}
+{% load static %}
+
+    <form action="{% url 'verify_otp' %}" method="post">
+        {% csrf_token %}
+        <!-- <label for="">otp1</label> -->
+        <input type="text" name="otpold" value="{{ otp }}" hidden><br><br>
+        <!-- <label for="">Email</label> -->
+        <input type="text" name="email" value="{{ email}}"  hidden><br><br>
+        <label for="">otp</label>
+        <input type="text" name="otp" required><br><br>
+        <button type="submit">verify otp</button>
+    
+        {% endblock %}
