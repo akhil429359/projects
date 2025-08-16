@@ -1,69 +1,107 @@
-{% extends 'index.html' %}
+{% extends 'userindex.html' %}
 {% load static %}
-
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-lg p-4 rounded-4">
-                <h3 class="text-center mb-4">My Profile</h3>
+
+<div class="container my-5">
+
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-4 p-5">
+                <h2 class="mb-4 text-center text-primary fw-bold display-5">My Profile</h2>
                 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">First Name</label>
-                    <p class="form-control-plaintext">{{ user.first_name }}</p>
-                </div>
                 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Last Name</label>
-                    <p class="form-control-plaintext">{{ user.last_name }}</p>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Email</label>
-                    <p class="form-control-plaintext">{{ user.email }}</p>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Username</label>
-                    <p class="form-control-plaintext">{{ user.username }}</p>
-                </div>
-                    <a href="{% url 'edit_profile' user_profile.id %}" class="btn btn-primary btn-sm rounded-pill px-4">✏ Edit Profile</a>
-                    <a href="{% url 'Logout' %}">Log Out</a>
-                <div class="text-center">
-                </div>
+<style>
+    .thick-label {
+        font-weight: 900; 
+    }
+    .bold-input {
+        font-weight: 700; 
+        font-size: 1.2rem; 
+        color: #000; 
+    }
+    .btn-custom-blue {
+        background-color: #007bff; /* Bright blue */
+        border-color: #007bff;
+        color: white;
+    }
+    .btn-custom-blue:hover {
+        background-color: #0056b3; /* Darker on hover */
+        border-color: #0056b3;
+    }
+</style>
+        <form>
+            <div class="mb-4">
+                <label class="form-label thick-label fs-4">First Name</label>
+                <input type="text" class="form-control form-control-lg bold-input" value="{{ user.first_name }}" readonly>
             </div>
-        </div>
-    </div>
-</div>
-     
-<h4 class="d-flex justify-content-between align-items-center">
-    My Blog Posts
-    <a href="{% url 'post_blog' %}" class="btn btn-success btn-sm rounded-pill px-4">
-        ➕ Add New Post
-    </a>
-</h4>
-<hr>
-    {% if posts %}
-        <div class="row">
-            {% for post in posts %}
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
-                        {% if post.image %}
-                            <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.title }}">
-                        {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">{{ post.title }}</h5>
-                            <p class="card-text">{{ post.content|truncatewords:20 }}</p>
-                        </div>
-                        <div class="card-footer text-muted">
-                            Posted on {{ post.date }}
+
+            <div class="mb-4">
+                <label class="form-label thick-label fs-4">Last Name</label>
+                <input type="text" class="form-control form-control-lg bold-input" value="{{ user.last_name }}" readonly>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label thick-label fs-4">Email</label>
+                <input type="email" class="form-control form-control-lg bold-input" value="{{ user.email }}" readonly>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label thick-label fs-4">Username</label>
+                <input type="text" class="form-control form-control-lg bold-input" value="{{ user.username }}" readonly>
+            </div>
+
+
+                                <div class="text-center mt-5">
+                                    <a href="{% url 'edit_profile' user_profile.id %}" 
+                                    class="btn btn-primary btn-lg rounded-pill px-5 py-2 fs-4">
+                                        ✏ Edit Profile
+                                    </a>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>No posts yet.</p>
-    {% endif %}
+
+
+            <div class="text-center mb-4">
+                <a href="{% url 'post_blog' %}" class="btn btn-custom-blue btn-lg rounded-pill px-5 py-3">
+                    Add New Post
+                </a>
+            </div>
+
+            <h4 class="text-center mb-4">My Blog Posts</h4>
+
+<hr>
+   {% if posts %}
+    <div class="row">
+        {% for post in posts %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {% if post.image %}
+                        <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ post.title }}</h5>
+                        <p class="card-text">{{ post.content|truncatewords:20 }}</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <small class="text-muted">Posted on {{ post.date }}</small>
+                        <div>
+                            <a href="{% url 'edit_post' post.id %}" class="btn btn-sm btn-warning">✏ Edit</a>
+                            <a href="{% url 'delete_post' post.id %}" 
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('Are you sure you want to delete this post?');">
+                               🗑 Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>No posts yet.</p>
+{% endif %}
+
 </div>
 {% endblock %}

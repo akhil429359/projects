@@ -22,7 +22,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',views.index),
+    path('',views.index,name='index'),
     path('about',views.about,name='about'),
     path('post',views.post,name='post'),
     path('contact',views.contact,name='contact'),
@@ -30,16 +30,20 @@ urlpatterns = [
     path('Login',views.Login,name='Login'),
     path('verify_login_otp',views.verify_login_otp,name='verify_login_otp'),
     path('userindex',views.userindex,name='userindex'),
+    path('userpost',views.userpost,name='userpost'),
+    path('userabout',views.userabout,name='userabout'),
+    path('usercontact',views.usercontact,name='usercontact'),
     path('profile/<int:id>/', views.profile, name='profile'),
     path('edit_profile/<int:id>/',views.edit_profile,name='edit_profile'),
     path('Logout',views.Logout,name='Logout'),
-    path('post_blog',views.post_blog,name='post_blog'),
     path('password_reset',views.password_reset_request,name='password_reset'),
     path('verify_otp',views.verify_otp,name='verify_otp'),
     path('set_new_password',views.set_new_password,name='set_new_password'),
-
-
-
+    path('post_blog',views.post_blog,name='post_blog'),
+    path('post_detail',views.post_detail,name='post_detail'),
+    path('post/<int:pk>/edit/',views.edit_post, name='edit_post'),
+    path('post/<int:pk>/delete/',views.delete_post, name='delete_post'),
+    
 
 ]
 

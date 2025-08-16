@@ -64,6 +64,12 @@ def Login(request):
     
 def userindex(request):
     return render(request,'userindex.html')
+def userpost(request):
+    return render(request,'userpost.html')
+def userabout(request):
+    return render(request,'userabout .html')
+def usercontact(request):
+    return render(request,'usercontact.html')
 
 
 
@@ -97,8 +103,10 @@ def post_blog(request):
     if request.method == 'POST':
         form = BlogForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            return redirect('profile')  
+            blog_post = form.save(commit=False)
+            blog_post.author = request.user
+            blog_post.save()
+            return redirect('profile',id = request.user.id)  
     else:
         form = BlogForm()
     categories = Category.objects.all()
@@ -183,3 +191,30 @@ def set_new_password(request):
                 messages.error(request,'Password doesnot match')
         return render(request,'set_new_password.html',{'email':email})               
     return render(request,'set_new_password.html',{'email':email})
+
+def post_detail(request, post_id):
+    post = Posts.objects.get( id=post_id)
+    recent_posts = Posts.objects.exclude(id=post_id).order_by('-date')[:5]
+
+    return render(request, 'post_detail.html', {
+        'post': post,
+        'recent_posts': recent_posts
+    })
+
+@login_required
+def edit_post(request, pk):
+    post = Posts.objects.get(pk=pk, author=request.user)
+    if request.method == 'POST':
+        form = BlogForm(request.POST, request.FILES,instance=post)
+        if form.is_valid():
+            form.save()
+            return redirect('profile',id=request.user.pk)  
+    else:
+        form = BlogForm(instance=post)
+    return render(request, 'edit_post.html', {'form': form})
+
+@login_required
+def delete_post(request, pk):
+        post = Posts.objects.get(pk=pk, author=request.user)
+        post.delete()
+        return redirect('profile',id=request.user.pk)
