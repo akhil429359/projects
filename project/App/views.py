@@ -7,7 +7,7 @@ import random
 from django.contrib.auth import login,authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import auth
-from .forms import BlogForm  
+from .forms import BlogForm  ,CommentForm
 from .models import Category,Posts
 
 
@@ -65,7 +65,8 @@ def Login(request):
 def userindex(request):
     return render(request,'userindex.html')
 def userpost(request):
-    return render(request,'userpost.html')
+    posts = Posts.objects.filter(status='1').order_by('-date')  
+    return render(request, 'userpost.html', {'posts': posts})
 def userabout(request):
     return render(request,'userabout .html')
 def usercontact(request):
@@ -192,18 +193,28 @@ def set_new_password(request):
         return render(request,'set_new_password.html',{'email':email})               
     return render(request,'set_new_password.html',{'email':email})
 
-def post_detail(request, post_id):
-    post = Posts.objects.get( id=post_id)
-    recent_posts = Posts.objects.exclude(id=post_id).order_by('-date')[:5]
+def post_detail(request, blog_slug):
+    post =Posts.objects.get( blog_slug=blog_slug, status='1')
 
-    return render(request, 'post_detail.html', {
-        'post': post,
-        'recent_posts': recent_posts
-    })
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.user = request.user
+            comment.save()
+            return redirect('post_detail', blog_slug=blog_slug)
+    else:
+        form = CommentForm()
+        comments = post.comments.all().order_by('-created_at')
+
+        return render(request, 'post_detail.html', {'post': post,'form': form,'comments': comments})
+
 
 @login_required
 def edit_post(request, pk):
     post = Posts.objects.get(pk=pk, author=request.user)
+    categories = Category.objects.all()
     if request.method == 'POST':
         form = BlogForm(request.POST, request.FILES,instance=post)
         if form.is_valid():
@@ -211,7 +222,7 @@ def edit_post(request, pk):
             return redirect('profile',id=request.user.pk)  
     else:
         form = BlogForm(instance=post)
-    return render(request, 'edit_post.html', {'form': form})
+    return render(request, 'edit_post.html', {'form': form,'categories':categories})
 
 @login_required
 def delete_post(request, pk):

@@ -1,91 +1,55 @@
 {% extends 'userindex.html' %}
 {% block content %}
-{% load static %}
-
-<div class="row tm-row">
-    <div class="col-12">
-        <form method="GET" class="form-inline tm-mb-80 tm-search-form">                
-            <input class="form-control tm-search-input" name="query" type="text" placeholder="Search..." aria-label="Search">
-            <button class="tm-search-button" type="submit">
-                <i class="fas fa-search tm-search-icon" aria-hidden="true"></i>
-            </button>                                
-        </form>
-    </div>                
-</div>            
-
-<!-- Post Image -->
-<div class="row tm-row">
-    <div class="col-12">
-        <hr class="tm-hr-primary tm-mb-55">
+<div class="container my-5">
+    <div class="card p-4 shadow-lg border-3 rounded-4 d-flex flex-column" style="border-color:#add8e6; min-height:350px;">
+        
+        <h2 class="text-primary">{{ post.title }}</h2>
+        
         {% if post.image %}
-            <img src="{{ post.image.url }}" alt="{{ post.title }}" class="img-fluid tm-mb-40">
-        {% else %}
-            <img src="{% static 'img/default-post.jpg' %}" alt="Default Post" class="img-fluid tm-mb-40">
+            <img src="{{ post.image.url }}" class="img-fluid my-3 rounded">
         {% endif %}
+
+        <p class="fs-4 flex-grow-1">{{ post.content }}</p>
+
+        <div class="pt-3 mt-3 d-flex justify-content-end" 
+                     style="border-top:3px solid #add8e6;">
+                    <div class="text-end text-dark">
+                        <span style="font-weight:700;">Posted by:</span> {{ post.author.username }}  
+                        <br>
+                        <span style="font-weight:700;">Posted on:</span> {{ post.date|date:"F d, Y h:i A" }}
+                    </div>
+        </div>
     </div>
+    
+    <div class="mt-3 d-flex justify-content-between">
+        <a href="{% url 'userpost' %}" class="btn btn-outline-primary">← Back to All Posts</a>
+        <a href="{% url 'profile' request.user.id %}" class="btn btn-outline-success">My Profile</a>
+    </div>
+
 </div>
+<hr style="border-top:3px solid #add8e6;">
 
-<div class="row tm-row">
-    <div class="col-lg-8 tm-post-col">
-        <div class="tm-post-full">                    
-            <div class="mb-4">
-                <h2 class="pt-2 tm-color-primary tm-post-title">{{ post.title }}</h2>
-                <p class="tm-mb-40">{{ post.date|date:"F d, Y" }} posted by {{ post.author.username }}</p>
-                <p>{{ post.content|linebreaks }}</p>
-                <span class="d-block text-right tm-color-primary">{{ post.category.name }}</span>
-            </div>
-            
-            <!-- Comments -->
-            <div>
-                <h2 class="tm-color-primary tm-post-title">Comments</h2>
-                <hr class="tm-hr-primary tm-mb-45">
-                {% for comment in post.comments.all %}
-                    <div class="tm-comment tm-mb-45">
-                        <figure class="tm-comment-figure">
-                            <img src="{% static 'img/comment-1.jpg' %}" alt="Image" class="mb-2 rounded-circle img-thumbnail">
-                            <figcaption class="tm-color-primary text-center">{{ comment.user.username }}</figcaption>
-                        </figure>
-                        <div>
-                            <p>{{ comment.text }}</p>
-                            <div class="d-flex justify-content-between">
-                                <a href="#" class="tm-color-primary">REPLY</a>
-                                <span class="tm-color-primary">{{ comment.date|date:"F d, Y" }}</span>
-                            </div>                                                 
-                        </div>                                
-                    </div>
-                {% empty %}
-                    <p>No comments yet. Be the first to comment!</p>
-                {% endfor %}
-                
-                <form method="post" class="mb-5 tm-comment-form">
-                    {% csrf_token %}
-                    <h2 class="tm-color-primary tm-post-title mb-4">Your comment</h2>
-                    <div class="mb-4">
-                        <textarea class="form-control" name="message" rows="6" placeholder="Write your comment..."></textarea>
-                    </div>
-                    <div class="text-right">
-                        <button class="tm-btn tm-btn-primary tm-btn-small">Submit</button>                        
-                    </div>                                
-                </form>                          
-            </div>
-        </div>
-    </div>
+<div class="mt-4">
+    <h4 class="text-primary">Comments ({{ comments.count }})</h4>
 
-    <!-- Sidebar -->
-    <aside class="col-lg-4 tm-aside-col">
-        <div class="tm-post-sidebar">
-            <h2 class="mb-4 tm-post-title tm-color-primary">Recent Posts</h2>
-            {% for recent in recent_posts %}
-                <a href="{% url 'post_detail' recent.id %}" class="d-block tm-mb-40">
-                    <figure>
-                        {% if recent.image %}
-                            <img src="{{ recent.image.url }}" alt="{{ recent.title }}" class="mb-2 img-fluid">
-                        {% endif %}
-                        <figcaption class="tm-color-primary">{{ recent.title }}</figcaption>
-                    </figure>
-                </a>
-            {% endfor %}
+    {% for comment in comments %}
+        <div class="border rounded p-2 my-2 shadow-sm">
+            <p class="mb-1"><strong class="text-danger">{{ comment.user.username }}</strong> commented:</p>
+            <p>{{ comment.content }}</p>
+            <small class="text-muted">{{ comment.created_at|date:"F d, Y H:i" }}</small>
         </div>
-    </aside>
+    {% empty %}
+        <p class="text-muted">No comments yet. Be the first to comment!</p>
+    {% endfor %}
+
+    {% if user.is_authenticated %}
+        <form method="post" class="mt-3">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Post Comment</button>
+        </form>
+    {% else %}
+        <p class="text-muted">You must <a href="{% url 'login' %}">log in</a> to comment.</p>
+    {% endif %}
 </div>
 {% endblock %}

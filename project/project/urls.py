@@ -40,7 +40,7 @@ urlpatterns = [
     path('verify_otp',views.verify_otp,name='verify_otp'),
     path('set_new_password',views.set_new_password,name='set_new_password'),
     path('post_blog',views.post_blog,name='post_blog'),
-    path('post_detail',views.post_detail,name='post_detail'),
+    path('post/<slug:blog_slug>/', views.post_detail, name='post_detail'),
     path('post/<int:pk>/edit/',views.edit_post, name='edit_post'),
     path('post/<int:pk>/delete/',views.delete_post, name='delete_post'),
     

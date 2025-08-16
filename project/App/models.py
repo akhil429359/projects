@@ -40,7 +40,7 @@ class Posts(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")  # changed here
     category = models.ForeignKey(Category, related_name='posts', on_delete=models.CASCADE)
     blog_slug = models.SlugField(max_length=200, unique=True, blank=True)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(choices=STATUS, max_length=1, default=0)
     section = models.CharField(choices=SECTION, max_length=100)
     main_post = models.BooleanField(default=False)
@@ -58,3 +58,12 @@ class Posts(models.Model):
 
     def __str__(self):
         return self.title
+
+class Comment(models.Model):
+    post = models.ForeignKey(Posts, on_delete=models.CASCADE, related_name="comments")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Comment by {self.user.username} on {self.post.title}"
