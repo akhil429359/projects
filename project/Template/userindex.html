@@ -94,7 +94,7 @@ https://templatemo.com/tm-553-xtra-blog
 </div>
 <div class="row tm-row mb-4">
     <div class="col-12 text-center">
-        <a href="{% url 'userpost' request.user.id %}" 
+        <a href="{% url 'userindex' %}" 
            class="btn btn-outline-primary btn-sm mx-1 {% if not category_slug %}active{% endif %}">
            All
         </a>
@@ -142,12 +142,7 @@ https://templatemo.com/tm-553-xtra-blog
             </div>
         </a>
 
-        <div class="mt-2">
-            {% if request.user == post.author %}
-                <a href="{% url 'edit_post' post.id %}" class="btn btn-sm btn-primary">Edit</a>
-                <a href="{% url 'delete_post' post.id %}" class="btn btn-sm btn-danger">Delete</a>
-            {% endif %}
-        </div>
+        
     </div>
     {% empty %}
     <p class="text-danger">No posts found.</p>

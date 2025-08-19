@@ -192,7 +192,7 @@ def send_otp(email):
     )
     return otp
 
-def password_reset_request(request):
+def password_reset(request):
     if request.method == 'POST':
         email = request.POST['email']
         try:
