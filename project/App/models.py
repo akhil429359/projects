@@ -28,21 +28,16 @@ class Posts(models.Model):
         ('1', "PUBLISH")
     )
 
-    SECTION = (
-        ('Recent', "Recent"),
-        ('Publish', "Publish"),
-        ('Trending', "Trending")
-    )
+    
 
     title = models.CharField(max_length=100)
     image = models.ImageField(upload_to="img")
     content = models.TextField()
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")  # changed here
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")  
     category = models.ForeignKey(Category, related_name='posts', on_delete=models.CASCADE)
     blog_slug = models.SlugField(max_length=200, unique=True, blank=True)
     date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(choices=STATUS, max_length=1, default=0)
-    section = models.CharField(choices=SECTION, max_length=100)
     main_post = models.BooleanField(default=False)
     
     def save(self, *args, **kwargs):

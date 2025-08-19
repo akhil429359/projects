@@ -51,60 +51,17 @@
             </div>
 
 
-                                <div class="text-center mt-5">
-                                    <a href="{% url 'edit_profile' user_profile.id %}" 
-                                    class="btn btn-primary btn-lg rounded-pill px-5 py-2 fs-4">
-                                        ✏ Edit Profile
-                                    </a>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+             <div class="text-center mt-5">
+                 <a href="{% url 'edit_profile' user_profile.id %}" 
+                 class="btn btn-primary btn-lg rounded-pill px-5 py-2 fs-4">
+                     ✏ Edit Profile
+                 </a>
                 </div>
-
-
-            <div class="text-center mb-4">
-                <a href="{% url 'post_blog' %}" class="btn btn-custom-blue btn-lg rounded-pill px-5 py-3">
-                    Add New Post
-                </a>
-            </div>
-
-            <h4 class="text-center mb-4">My Blog Posts</h4>
-
-<hr>
-   {% if posts %}
-    <div class="row">
-        {% for post in posts %}
-            <div class="col-md-4 mb-4">
-        <a href="{% url 'post_detail' post.blog_slug %}" class="text-decoration-none text-dark">
-                <div class="card h-100">
-                    {% if post.image %}
-                        <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.title }}">
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ post.title }}</h5>
-                        <p class="card-text">{{ post.content|truncatewords:20 }}</p>
-                    </div>
-                    <div class="card-footer d-flex justify-content-between align-items-center">
-                        <small class="text-muted">Posted on {{ post.date }}</small>
-        </a>
-
-                        <div>
-                            <a href="{% url 'edit_post' post.id %}" class="btn btn-sm btn-warning">✏ Edit</a>
-                            <a href="{% url 'delete_post' post.id %}" 
-                               class="btn btn-sm btn-danger"
-                               onclick="return confirm('Are you sure you want to delete this post?');">
-                               🗑 Delete
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
+            </form>
+        </div>
     </div>
-{% else %}
-    <p>No posts yet.</p>
-{% endif %}
-
 </div>
+
+
+            
 {% endblock %}

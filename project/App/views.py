@@ -9,6 +9,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import auth
 from .forms import BlogForm  ,CommentForm
 from .models import Category,Posts
+from django.db.models import Q
+from django.core.paginator import Paginator
+
 
 
 # Create your views here.
@@ -17,6 +20,8 @@ from .models import Category,Posts
 def index(request):
     return render(request,'index.html')
 def post(request):
+    if not request.user.is_authenticated:
+        return redirect('Login')
     return render(request,'post.html')
 def contact(request):
     return render(request,'contact.html')
@@ -30,20 +35,62 @@ def signup(request):
         username=request.POST['username']
         email=request.POST['email']
         password=request.POST['password']
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "This email is already registered. Please use another one.")
+            return render(request, 'signup.html')
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "This username is already taken.")
+            return render(request, 'signup.html')
+        otp = send_otp(email)
+        context = {
+                    "firstname":firstname,
+                    "lastname":lastname,
+                    "username":username,
+                    "password":password,
+                    "email": email,
+                    "otp": otp,
+        }
         
-        # otp = send_otp(email)
-        # context = {
-        #             "email": email,
-        #             "otp": otp,
-        # }
-        # return render(request,'verify_login_otp.html',context)
+        return render(request,'verify_signup_otp.html',context)
     
-        data=User.objects.create_user(first_name=firstname,last_name=lastname,username=username,email=email,password=password)
-        data.save()
-        return render(request,'Login.html')
+        
     else:
         return render(request,'signup.html')
 
+def verify_signup_otp(request):
+    if request.method == 'POST':
+        firstname=request.POST['firstname']
+        lastname=request.POST['lastname']
+        username=request.POST['username']
+        password=request.POST['password']
+        email =request.POST.get('email')
+        otpold = request.POST.get('otpold')
+        otp = request.POST.get('otp')
+
+        if otpold==otp :
+            data=User.objects.create_user(first_name=firstname,last_name=lastname,username=username,email=email,password=password)
+            data.save()
+            subject = "Your Account has been created successfully"
+            message = f"""
+                        Hi {firstname},
+                        Your account has been successfully created!
+                        Here are your login details:
+                        Username: {username}
+                        Password: {password}
+                        You can now log in to your account.
+                        Best regards,
+                        Your Website Team
+                        """
+            from_email = "akhilpioussince2001@gmail.com"   
+            send_mail(subject, message, from_email, [email], fail_silently=False)
+
+            messages.success(request, "Account created successfully! Login details have been sent to your email.")
+            return render(request, 'Login.html')
+            
+        else:
+            messages.error(request,"Invalid OTP")
+    return render(request,'verify_signup_otp.html') 
 
 
 
@@ -61,28 +108,32 @@ def Login(request):
             return render(request,'login.html',{'error':"credentials are wrong "})
     else:
         return render(request,'login.html')
-    
 def userindex(request):
-    return render(request,'userindex.html')
-def userpost(request):
-    posts = Posts.objects.filter(status='1').order_by('-date')  
-    return render(request, 'userpost.html', {'posts': posts})
+    query = request.GET.get("query") 
+    category_slug = request.GET.get("category", "")
+    posts = Posts.objects.filter(status='1').order_by('-date')
+    categories = Category.objects.all()
+    if query:
+        posts = posts.filter(Q(title__icontains=query) | Q(content__icontains=query) |Q(author__username__icontains=query)  )
+    elif category_slug:
+        posts = posts.filter(category__slug=category_slug)
+    paginator = Paginator(posts, 5)  
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    return render(request, "userindex.html", {"posts": posts, "query": query,"categories": categories,"category_slug": category_slug,"page_obj": page_obj,})
+def userpost(request,id):
+    user_profile = User.objects.get( id=id)
+    user_posts = Posts.objects.filter(author=user_profile).order_by('-date')
+    return render(request, 'userpost.html', {'user_profile': user_profile,  'posts': user_posts})
 def userabout(request):
     return render(request,'userabout .html')
 def usercontact(request):
     return render(request,'usercontact.html')
 
-
-
 @login_required
 def profile(request, id):
     user_profile = User.objects.get( id=id)
-    user_posts = Posts.objects.filter(author=user_profile).order_by('-date')
-    return render(request, 'profile.html', {
-        'user_profile': user_profile,  
-        'posts': user_posts
-    })
-
+    return render(request, 'profile.html', {'user_profile': user_profile})
 
 def edit_profile(request,id):
     data=User.objects.get(id=id)

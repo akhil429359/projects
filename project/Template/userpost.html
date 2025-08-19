@@ -2,52 +2,54 @@
 {% block content %}
 {% load static %}
 
- <div class="row tm-row">
-    <div class="col-12">
-        <form method="GET" class="form-inline tm-mb-80 tm-search-form">                
-            <input class="form-control tm-search-input" name="query" type="text" placeholder="Search..." aria-label="Search">
-            <button class="tm-search-button" type="submit">
-                <i class="fas fa-search tm-search-icon" aria-hidden="true"></i>
-            </button>                                
-        </form>
-    </div>  
 
-<div class="row tm-row">
+<style>
+    .btn-custom-blue {
+        background-color: #007bff; /* Bright blue */
+        border-color: #007bff;
+        color: white;
+    }
+    .btn-custom-blue:hover {
+        background-color: #0056b3; /* Darker on hover */
+        border-color: #0056b3;
+    }
+</style>
+<div class="text-center mb-4">
+    <a href="{% url 'post_blog' %}" class="btn btn-custom-blue btn-lg rounded-pill px-5 py-3">
+         Add New Post
+    </a>
+</div>
+<h4 class="text-center mb-4">My Blog Posts</h4>
+<hr>
+{% if posts %}
+<div class="row">
     {% for post in posts %}
-    <div class="col-lg-6 tm-post-col mb-4">
+    <div class="col-md-4 mb-4">
         <a href="{% url 'post_detail' post.blog_slug %}" class="text-decoration-none text-dark">
-            <div class="tm-post-full p-3 rounded" 
-                 style="border:3px solid #add8e6; box-shadow:0 4px 12px rgba(0,0,0,0.15); transition:0.3s;">
-                
-                <h3 class="tm-color-primary">{{ post.title }}</h3>
-                
+            <div class="card h-100">
                 {% if post.image %}
-                    <img src="{{ post.image.url }}" alt="Post Image" class="img-fluid mb-3 rounded">
+                <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.title }}">
                 {% endif %}
-
-                <p>{{ post.content|truncatewords:30 }}</p>
-
-                <div class="pt-3 mt-3 d-flex justify-content-end" 
-                     style="border-top:3px solid #add8e6;">
-                    <div class="text-end text-dark">
-                        <span style="font-weight:700;">Posted by:</span> {{ post.author.username }}  
-                        <br>
-                        <span style="font-weight:700;">Posted on:</span> {{ post.date|date:"F d, Y h:i A" }}
-                    </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ post.title }}</h5>
+                    <p class="card-text">{{ post.content|truncatewords:20 }}</p>
                 </div>
-            </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <small class="text-muted">Posted on {{ post.date }}</small>
         </a>
 
-        <div class="mt-2">
-            {% if request.user == post.author %}
-                <a href="{% url 'edit_post' post.id %}" class="btn btn-sm btn-primary">Edit</a>
-                <a href="{% url 'delete_post' post.id %}" class="btn btn-sm btn-danger">Delete</a>
-            {% endif %}
+        <div>
+            <a href="{% url 'edit_post' post.id %}" class="btn btn-sm btn-warning">✏ Edit</a>
+            <a href="{% url 'delete_post' post.id %}" class="btn btn-sm btn-danger"onclick="return confirm('Are you sure you want to delete this post?');">🗑 Delete</a>
         </div>
     </div>
-    {% empty %}
-    <p>No posts yet. Be the first to create one!</p>
-    {% endfor %}
+</div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<p>No posts yet.</p>
+{% endif %}
 </div>
 
 {% endblock %}
